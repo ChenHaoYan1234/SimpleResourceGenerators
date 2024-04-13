@@ -22,7 +22,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.items.CapabilityItemHandler;
-import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.ItemStackHandler;
 import net.minecraftforge.oredict.OreDictionary;
 
@@ -54,7 +54,7 @@ public class OreGeneratorBlock extends Block implements IHasModel {
     public void breakBlock(World world, BlockPos pos, IBlockState state) {
         final TileEntity tile = world.getTileEntity(pos);
         if (tile instanceof OreGeneratorTileEntity) {
-            final ItemStackHandler inv = ((OreGeneratorTileEntity)tile).inventory;
+            final ItemStackHandler inv = ((OreGeneratorTileEntity) tile).inventory;
             for (int i = 0; i < inv.getSlots(); i++) {
                 InventoryHelper.spawnItemStack(world, pos.getX(), pos.getY(), pos.getZ(), inv.getStackInSlot(i));
             }
@@ -66,9 +66,10 @@ public class OreGeneratorBlock extends Block implements IHasModel {
     public void registerModel() {
         SimpleResourceGenerators.proxy.registerRenderer(Item.getItemFromBlock(this), 0, "inventory");
     }
+
     @Override
     public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
-        if(!worldIn.isRemote){
+        if (!worldIn.isRemote) {
             int type = GeneratorType.ORE_GENERATOR.getId();
             playerIn.openGui(SimpleResourceGenerators.instance, type, worldIn, pos.getX(), pos.getY(), pos.getZ());
         }
@@ -81,10 +82,10 @@ public class OreGeneratorBlock extends Block implements IHasModel {
 
         @Override
         public void update() {
-            if (ticks != 10){
+            if (ticks != 10) {
                 ticks++;
                 return;
-            }else{
+            } else {
                 ticks = 0;
             }
 
@@ -130,8 +131,12 @@ public class OreGeneratorBlock extends Block implements IHasModel {
 
         @Override
         public <T> T getCapability(Capability<T> capability, EnumFacing facing) {
-            if (capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY){
-                return CapabilityItemHandler.ITEM_HANDLER_CAPABILITY.cast(new IItemHandler() {
+            if (capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) {
+                return CapabilityItemHandler.ITEM_HANDLER_CAPABILITY.cast(new IItemHandlerModifiable() {
+                    @Override
+                    public void setStackInSlot(int slot, @Nonnull ItemStack stack) {
+                    }
+
                     @Override
                     public int getSlots() {
                         return inventory.getSlots();
@@ -160,7 +165,7 @@ public class OreGeneratorBlock extends Block implements IHasModel {
                         return inventory.getSlotLimit(slot);
                     }
                 });
-            }else {
+            } else {
                 return super.getCapability(capability, facing);
             }
         }
