@@ -1,10 +1,15 @@
 package bootmgr.simple_resource_generators.blocks;
 
 import bootmgr.simple_resource_generators.SimpleResourceGenerators;
+import bootmgr.simple_resource_generators.Tags;
+import bootmgr.simple_resource_generators.utils.GeneratorType;
+import bootmgr.simple_resource_generators.utils.IGeneratorTileEntity;
 import bootmgr.simple_resource_generators.utils.IHasModel;
+import bootmgr.simple_resource_generators.utils.RegisterHelper;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.InventoryHelper;
 import net.minecraft.item.Item;
@@ -12,7 +17,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.ITickable;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
@@ -22,7 +27,7 @@ import net.minecraftforge.items.ItemStackHandler;
 import net.minecraftforge.oredict.OreDictionary;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import java.util.Objects;
 
 
 public class OreGeneratorBlock extends Block implements IHasModel {
@@ -30,7 +35,9 @@ public class OreGeneratorBlock extends Block implements IHasModel {
 
     public OreGeneratorBlock() {
         super(Material.ROCK);
-        setTranslationKey("ore_generator");
+        setRegistryName(Tags.MOD_ID, "ore_generator");
+        setCreativeTab(RegisterHelper.SRG_CREATIVE_TAB);
+        setTranslationKey(Objects.requireNonNull(getRegistryName()).toString());
     }
 
     @Override
@@ -59,8 +66,16 @@ public class OreGeneratorBlock extends Block implements IHasModel {
     public void registerModel() {
         SimpleResourceGenerators.proxy.registerRenderer(Item.getItemFromBlock(this), 0, "inventory");
     }
+    @Override
+    public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
+        if(!worldIn.isRemote){
+            int type = GeneratorType.ORE_GENERATOR.getId();
+            playerIn.openGui(SimpleResourceGenerators.instance, type, worldIn, pos.getX(), pos.getY(), pos.getZ());
+        }
+        return true;
+    }
 
-    public static final class OreGeneratorTileEntity extends TileEntity implements ITickable {
+    public static final class OreGeneratorTileEntity extends TileEntity implements IGeneratorTileEntity {
         private final ItemStackHandler inventory = new ItemStackHandler(1);
         private int ticks = 0;
 
@@ -101,7 +116,6 @@ public class OreGeneratorBlock extends Block implements IHasModel {
 
             if (!isOre) return;
 
-            SimpleResourceGenerators.LOGGER.info("Above block is "+aboveBlock.getRegistryName());
             if (inventory.getStackInSlot(0).getItem() == Items.AIR) {
                 inventory.insertItem(0, new ItemStack(Item.getItemFromBlock(aboveBlock)), false);
             } else if (inventory.getStackInSlot(0).getItem() == Item.getItemFromBlock(aboveBlock)) {
@@ -114,9 +128,8 @@ public class OreGeneratorBlock extends Block implements IHasModel {
             return cap == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY || super.hasCapability(cap, side);
         }
 
-        @Nullable
         @Override
-        public <T> T getCapability(Capability<T> capability, @Nullable EnumFacing facing) {
+        public <T> T getCapability(Capability<T> capability, EnumFacing facing) {
             if (capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY){
                 return CapabilityItemHandler.ITEM_HANDLER_CAPABILITY.cast(new IItemHandler() {
                     @Override
@@ -165,5 +178,7 @@ public class OreGeneratorBlock extends Block implements IHasModel {
             compound.setTag("inventory", inventory.serializeNBT());
             return super.writeToNBT(compound);
         }
+
+
     }
 }

@@ -20,7 +20,7 @@ import java.util.Objects;
 
 @Mod.EventBusSubscriber(modid = Tags.MOD_ID)
 public class RegisterHelper {
-    public static final CreativeTabs SRG_CREATIVE_TAB = new CreativeTabs("srg_creative_tab") {
+    public static final CreativeTabs SRG_CREATIVE_TAB = new CreativeTabs("simple_resource_generators") {
         // 获得用作标签图标的 ItemStack。你大可以往里面塞各种奇奇怪怪的数据。
         @Override
         @Nonnull
