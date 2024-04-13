@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "normal": {
+      "model": "simple_resource_generators:ore_generator"
+    }
+  }
+}
