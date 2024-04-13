@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern":
+  [
+    "AAA",
+    "ABA",
+    "AAA"
+  ],
+  "key":
+  {
+    "A":
+    {
+      "item": "minecraft:cobblestone"
+    },
+    "B":
+    {
+      "item": "minecraft:stone",
+      "data": 0
+    }
+  },
+  "result":
+  {
+    "item": "simple_resource_generators:ore_generator",
+    "count": 1
+  }
+}
