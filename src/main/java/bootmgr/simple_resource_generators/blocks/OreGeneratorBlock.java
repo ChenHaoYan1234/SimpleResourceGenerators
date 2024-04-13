@@ -59,6 +59,7 @@ public class OreGeneratorBlock extends Block implements IHasModel {
                 InventoryHelper.spawnItemStack(world, pos.getX(), pos.getY(), pos.getZ(), inv.getStackInSlot(i));
             }
         }
+        InventoryHelper.spawnItemStack(world, pos.getX(), pos.getY(), pos.getZ(), new ItemStack(this));
         super.breakBlock(world, pos, state);
     }
 
@@ -77,7 +78,12 @@ public class OreGeneratorBlock extends Block implements IHasModel {
     }
 
     public static final class OreGeneratorTileEntity extends TileEntity implements IGeneratorTileEntity {
-        private final ItemStackHandler inventory = new ItemStackHandler(1);
+        private final ItemStackHandler inventory = new ItemStackHandler(1){
+            @Override
+            public int getSlotLimit(int slot) {
+                return 64;
+            }
+        };
         private int ticks = 0;
 
         @Override
